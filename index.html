@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dummy Teacher Email Login</title>
+  <style>
+    :root { font-family: Arial, sans-serif; background: #f8f9fd; color: #202124; }
+    body { margin: 0; display: flex; min-height: 100vh; align-items: center; justify-content: center; background: #eef2f7; }
+    .container { width: min(400px, 95vw); background: #fff; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.12); padding: 24px; }
+    h1 { margin: 0 0 16px; font-size: 1.35rem; text-align: center; }
+    .hidden { display: none; }
+    label { display: block; font-weight: 600; margin-top: 14px; }
+    input { width: 100%; padding: 10px 12px; font-size: 1rem; margin-top: 6px; border: 1px solid #cfd8e8; border-radius: 8px; }
+    button { width: 100%; margin-top: 16px; padding: 10px 14px; font-size: 1rem; border: none; border-radius: 8px; background: #1a73e8; color: #fff; cursor: pointer; }
+    button:hover { background: #1668c8; }
+    .box { border: 1px solid #e1e5eb; border-radius: 10px; padding: 14px; background: #f4f7fb; margin-top: 16px; }
+    .message { margin-top: 10px; color: #d93025; font-size: 0.95rem; }
+    .success { color: #0f9d58; }
+    .link-btn { background: #5f6368; }
+    .link-btn:hover { background: #4c5157; }
+  </style>
+</head>
+<body>
+  <div class="container" id="app">
+    <h1>Teacher Email Demo</h1>
+
+    <div id="loginScreen">
+      <p>This demo uses a hardcoded teacher account for practice only.</p>
+      <div class="box">
+        <strong>Test account:</strong>
+        <ul>
+          <li>Email: <code>teacher@example.com</code></li>
+          <li>PIN: <code>1234</code></li>
+          <li>Current password: <code>oldpass</code></li>
+        </ul>
+      </div>
+
+      <label for="email">Teacher Email</label>
+      <input id="email" type="email" placeholder="teacher@example.com" value="teacher@example.com" />
+
+      <label for="pin">PIN</label>
+      <input id="pin" type="password" placeholder="1234" />
+
+      <button id="loginBtn">Login</button>
+      <p id="loginMsg" class="message"></p>
+    </div>
+
+    <div id="inboxScreen" class="hidden">
+      <h2>Inbox (demo view)</h2>
+      <p>Signed in as <strong id="userEmail"></strong></p>
+      <div class="box">
+        <p><strong>You have 2 new messages.</strong></p>
+        <ol>
+          <li>Welcome to the dummy mailbox!</li>
+          <li>Security tip: this is a local practice demo.</li>
+        </ol>
+      </div>
+      <button id="changePasswordNav">Change Password</button>
+      <button id="logoutBtn" class="link-btn">Log Out</button>
+    </div>
+
+    <div id="passwordScreen" class="hidden">
+      <h2>Change Password</h2>
+      <label for="oldPassword">Current Password</label>
+      <input id="oldPassword" type="password" placeholder="oldpass" />
+
+      <label for="newPassword">New Password</label>
+      <input id="newPassword" type="password" placeholder="newpass" />
+
+      <label for="confirmPassword">Confirm New Password</label>
+      <input id="confirmPassword" type="password" />
+
+      <button id="savePasswordBtn">Save Password</button>
+      <button id="backToInbox" class="link-btn">Back to Inbox</button>
+      <p id="passwordMsg" class="message"></p>
+    </div>
+  </div>
+
+  <script>
+    const appState = {
+      accountEmail: 'teacher@example.com',
+      accountPin: '1234',
+      accountPassword: localStorage.getItem('dummyTeacherPass') || 'oldpass',
+    };
+
+    const loginScreen = document.getElementById('loginScreen');
+    const inboxScreen = document.getElementById('inboxScreen');
+    const passwordScreen = document.getElementById('passwordScreen');
+
+    const loginBtn = document.getElementById('loginBtn');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const changePasswordNav = document.getElementById('changePasswordNav');
+    const savePasswordBtn = document.getElementById('savePasswordBtn');
+    const backToInbox = document.getElementById('backToInbox');
+
+    const emailInput = document.getElementById('email');
+    const pinInput = document.getElementById('pin');
+    const loginMsg = document.getElementById('loginMsg');
+
+    const userEmail = document.getElementById('userEmail');
+    const oldPasswordInput = document.getElementById('oldPassword');
+    const newPasswordInput = document.getElementById('newPassword');
+    const confirmPasswordInput = document.getElementById('confirmPassword');
+    const passwordMsg = document.getElementById('passwordMsg');
+
+    function switchScreen(show) {
+      loginScreen.classList.toggle('hidden', show !== 'login');
+      inboxScreen.classList.toggle('hidden', show !== 'inbox');
+      passwordScreen.classList.toggle('hidden', show !== 'password');
+      loginMsg.textContent = '';
+      passwordMsg.textContent = '';
+    }
+
+    function updateStoredPassword(pass) {
+      appState.accountPassword = pass;
+      localStorage.setItem('dummyTeacherPass', pass);
+    }
+
+    loginBtn.addEventListener('click', () => {
+      const email = emailInput.value.trim();
+      const pin = pinInput.value.trim();
+
+      if (email !== appState.accountEmail) {
+        loginMsg.textContent = 'Email not recognized. Use the test teacher email.';
+        return;
+      }
+      if (pin !== appState.accountPin) {
+        loginMsg.textContent = 'PIN incorrect. Try again.';
+        return;
+      }
+      userEmail.textContent = email;
+      switchScreen('inbox');
+    });
+
+    logoutBtn.addEventListener('click', () => {
+      pinInput.value = '';
+      switchScreen('login');
+    });
+
+    changePasswordNav.addEventListener('click', () => {
+      oldPasswordInput.value = '';
+      newPasswordInput.value = '';
+      confirmPasswordInput.value = '';
+      switchScreen('password');
+    });
+
+    backToInbox.addEventListener('click', () => {
+      switchScreen('inbox');
+    });
+
+    savePasswordBtn.addEventListener('click', () => {
+      const oldPass = oldPasswordInput.value;
+      const newPass = newPasswordInput.value;
+      const confirmPass = confirmPasswordInput.value;
+
+      if (!oldPass || !newPass || !confirmPass) {
+        passwordMsg.textContent = 'Please fill all fields.';
+        return;
+      }
+      if (oldPass !== appState.accountPassword) {
+        passwordMsg.textContent = 'Current password does not match.';
+        return;
+      }
+      if (newPass !== confirmPass) {
+        passwordMsg.textContent = 'New password and confirmation do not match.';
+        return;
+      }
+      if (newPass.length < 6) {
+        passwordMsg.textContent = 'New password must be at least 6 characters.';
+        return;
+      }
+
+      updateStoredPassword(newPass);
+      passwordMsg.classList.add('success');
+      passwordMsg.textContent = 'Password updated successfully. Go back to inbox.';
+    });
+
+    window.addEventListener('DOMContentLoaded', () => {
+      appState.accountPassword = localStorage.getItem('dummyTeacherPass') || 'oldpass';
+      switchScreen('login');
+    });
+  </script>
+</body>
+</html>
